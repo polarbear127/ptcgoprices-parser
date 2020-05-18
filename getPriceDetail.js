@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         PTCGO Prices Downloader
-// @version      1.0
+// @version      1.1
 // @description  下載完整價格表
 // @author       阿一
 // @include      https://ptcgoprices.com/*
@@ -16,14 +16,43 @@
 }
 )();
 
+function getDateTime() {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = now.getMonth()+1;
+        var day = now.getDate();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var second = now.getSeconds();
+        if(month.toString().length == 1) {
+             month = '0'+month;
+        }
+        if(day.toString().length == 1) {
+             day = '0'+day;
+        }
+        if(hour.toString().length == 1) {
+             hour = '0'+hour;
+        }
+        if(minute.toString().length == 1) {
+             minute = '0'+minute;
+        }
+        if(second.toString().length == 1) {
+             second = '0'+second;
+        }
+        var dateTime = year+'/'+month+'/'+day+' '+hour+':'+minute+':'+second;
+         return dateTime;
+    }
+
 function downloadList() {
     var item = document.getElementsByClassName("grid-item");
     var total_cards = item.length;
     console.log("Total "+item.length)+" cards are parsed.";
-    var text = "CID\tName\tPack\tID\tType\tSelling\tNumOfAsks\tBuying\tNumOfBids\tDiff\n";
+    var text = "CID\tName\tPack\tID\tType\tSelling\tNumOfAsks\tBuying\tNumOfBids\tDiff\tUpdateTime\n";
     var i;
     var startTime = Math.round(new Date().getTime()/1000);
-
+    //var now = new Date();
+    //var timeupdate = document.getElementById("timeupdated").innerText
+    var timeupdate = getDateTime();
     for (i = 0; i < total_cards; i++) {
         var tmpOut = item[i].dataset["cid"]+"\t"+
         item[i].children[0].innerText.replaceAll("\n","\t")+"\t"+
@@ -53,7 +82,9 @@ function downloadList() {
             bid_number = tmp[7];
             diff = bid_price-ask_price;
             pack_name = card_id.split(' ')[0];
-            result =[cid, name,pack_name,card_id,card_type,ask_price,ask_number,bid_price,bid_number,diff].join("\t");
+            result =[cid, name,pack_name,card_id,card_type,ask_price,ask_number,bid_price,bid_number,diff,timeupdate].join("\t");
+            // console.log(output);
+            text += result + "\n"
         }else if(tmp.length == 7){
             cid = tmp[0];
             name = tmp[1];
@@ -65,12 +96,12 @@ function downloadList() {
             bid_number = tmp[6];
             diff = bid_price-ask_price;
             pack_name = card_id.split(" ")[0];
-            result =[cid, name,pack_name,card_id,card_type,ask_price,ask_number,bid_price,bid_number,diff].join("\t");
+            result =[cid, name,pack_name,card_id,card_type,ask_price,ask_number,bid_price,bid_number,diff,timeupdate].join("\t");
+            // console.log(output);
+            text += result + "\n"
         }else{
             console.log(tmpOut)
         }
-        // console.log(output);
-        text += result + "\n"
     }
     var endTime = Math.round(new Date().getTime()/1000);
     var timeDiff = endTime - startTime;
